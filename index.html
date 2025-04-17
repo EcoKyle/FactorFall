@@ -26,7 +26,7 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 0.5rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
     }
 
     input, button {
@@ -34,6 +34,21 @@
       padding: 0.4rem 0.6rem;
       border-radius: 6px;
       border: 1px solid #ccc;
+    }
+
+    #hue-label {
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    #preview {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      border: 1px solid #aaa;
     }
 
     #game-board {
@@ -68,15 +83,14 @@
       transform: scale(1.1);
     }
 
-    #score {
-      font-size: 1.2rem;
+    #info-bar {
+      display: flex;
+      justify-content: space-between;
+      width: 95%;
+      max-width: 400px;
       margin-top: 0.5rem;
+      font-size: 1.1rem;
       color: #333;
-    }
-
-    #hue-label {
-      font-size: 0.9rem;
-      margin-top: 0.2rem;
     }
 
     @media (max-width: 600px) {
@@ -95,34 +109,56 @@
     <input type="number" id="divisor" value="3" min="2" max="12" />
     Hue:
     <input type="range" id="hue" min="0" max="360" value="160" />
-    <button onclick="startGame()">Start</button>
+    <button id="start-btn" onclick="startGame()">Start</button>
     <button onclick="resetGame()">Reset</button>
   </div>
-  <div id="hue-label">Tile hue: <span id="hue-value">160</span>°</div>
+
+  <div id="hue-label">
+    Tile hue: <span id="hue-value">160</span>°
+    <div id="preview" style="background: hsl(160, 60%, 55%);"></div>
+  </div>
+
   <div id="game-board"></div>
-  <div id="score">Score: 0</div>
+
+  <div id="info-bar">
+    <div id="score">Score: 0</div>
+    <div id="timer">Time: 00:00</div>
+  </div>
 
   <script>
     const board = document.getElementById("game-board");
     const scoreDisplay = document.getElementById("score");
     const hueInput = document.getElementById("hue");
     const hueValueDisplay = document.getElementById("hue-value");
+    const preview = document.getElementById("preview");
+    const timerDisplay = document.getElementById("timer");
+    const startBtn = document.getElementById("start-btn");
+
     let divisor = 3;
     let score = 0;
-    let gameInterval;
     let tileId = 0;
+    let gameInterval;
+    let timerInterval;
+    let elapsedSeconds = 0;
 
     function startGame() {
       resetGame();
       divisor = parseInt(document.getElementById("divisor").value);
+      startBtn.disabled = true;
       gameInterval = setInterval(spawnTile, 1000);
+      timerInterval = setInterval(updateTimer, 1000);
     }
 
     function resetGame() {
       clearInterval(gameInterval);
+      clearInterval(timerInterval);
       board.innerHTML = "";
       score = 0;
+      tileId = 0;
+      elapsedSeconds = 0;
+      timerDisplay.textContent = "Time: 00:00";
       scoreDisplay.textContent = "Score: 0";
+      startBtn.disabled = false;
     }
 
     function spawnTile() {
@@ -136,14 +172,13 @@
       tile.dataset.id = tileId++;
       board.appendChild(tile);
 
-      let fallSpeed = 1.5;
       const fall = setInterval(() => {
         let top = parseFloat(tile.style.top);
         if (top > board.clientHeight) {
           clearInterval(fall);
           tile.remove();
         } else {
-          tile.style.top = top + fallSpeed + "px";
+          tile.style.top = top + 1.5 + "px";
         }
       }, 10);
 
@@ -165,8 +200,17 @@
       };
     }
 
+    function updateTimer() {
+      elapsedSeconds++;
+      const mins = String(Math.floor(elapsedSeconds / 60)).padStart(2, "0");
+      const secs = String(elapsedSeconds % 60).padStart(2, "0");
+      timerDisplay.textContent = `Time: ${mins}:${secs}`;
+    }
+
     hueInput.addEventListener("input", () => {
-      hueValueDisplay.textContent = hueInput.value;
+      const hue = hueInput.value;
+      hueValueDisplay.textContent = hue;
+      preview.style.background = `hsl(${hue}, 60%, 55%)`;
     });
   </script>
 </body>
