@@ -185,12 +185,10 @@
       </div>
     </fieldset>
 
-    <div id="button-row">
-      <button id="start-btn" onclick="startGame()">Start</button>
-      <button onclick="pauseGame()">Pause</button>
-      <button onclick="stopGame()">Stop</button>
-      <button onclick="resetGame()">Reset</button>
-    </div>
+<div id="button-row">
+  <button id="start-btn" onclick="startGame()">Start</button>
+  <button onclick="resetGame()">End Game</button>
+</div>
 
     <div id="game-board"></div>
 
@@ -248,24 +246,6 @@
       updateDisplay();
       settingsFieldset.disabled = false;
       startBtn.disabled = false;
-      isPaused = false;
-    }
-
-    function pauseGame() {
-      if (!isPaused) {
-        clearInterval(gameInterval);
-        clearInterval(timerInterval);
-        isPaused = true;
-      } else {
-        gameInterval = setInterval(spawnTile, 1000);
-        timerInterval = setInterval(updateTimer, 1000);
-        isPaused = false;
-      }
-    }
-
-    function stopGame() {
-      clearInterval(gameInterval);
-      clearInterval(timerInterval);
       isPaused = false;
     }
 
