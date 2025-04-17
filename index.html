@@ -12,60 +12,70 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 100vh;
+      padding: 1rem;
     }
 
     h1 {
-      margin: 1rem 0 0.5rem;
-      font-size: 2rem;
+      margin-bottom: 1rem;
+      font-size: 1.8rem;
       color: #2a4b5c;
+      text-align: center;
     }
 
-    #controls {
+    #game-container {
+      width: 100%;
+      max-width: 420px;
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
+      flex-direction: column;
+      align-items: center;
     }
 
-    input, button, select {
-      font-size: 1rem;
-      padding: 0.4rem 0.6rem;
-      border-radius: 6px;
+    fieldset {
       border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      width: 100%;
+      background: #ffffffcc;
+    }
+
+    fieldset legend {
+      font-weight: bold;
+      padding: 0 0.5rem;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0.75rem;
     }
 
     label {
-      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+      font-size: 0.95rem;
+      color: #333;
     }
 
-    #hue-label {
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
+    input[type="range"], input[type="number"] {
+      width: 100%;
     }
 
-    #preview {
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
-      border: 1px solid #aaa;
+    .readonly {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 0.2rem;
     }
 
     #game-board {
       position: relative;
-      width: 95%;
-      max-width: 400px;
+      width: 100%;
       height: 500px;
       border: 3px solid #ccc;
-      background: hsl(160, 60%, 90%);
       border-radius: 12px;
-      overflow: hidden;
+      background: hsl(160, 60%, 90%);
       background-image: radial-gradient(#d0edf6 1px, transparent 1px);
       background-size: 20px 20px;
+      overflow: hidden;
       transition: background 0.3s ease;
     }
 
@@ -83,7 +93,6 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      transition: transform 0.2s ease, background 0.3s ease;
       cursor: pointer;
     }
 
@@ -94,16 +103,46 @@
     #info-bar {
       display: flex;
       justify-content: space-between;
-      width: 95%;
-      max-width: 400px;
+      width: 100%;
       margin-top: 0.5rem;
-      font-size: 1.1rem;
+      font-size: 1rem;
       color: #2a4b5c;
+    }
+
+    #preview {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      border: 1px solid #aaa;
+      display: inline-block;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+
+    #button-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    button {
+      padding: 0.4rem 0.75rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #aaa;
+      background: #f0f0f0;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #ddd;
+      color: #888;
+      cursor: not-allowed;
     }
 
     footer {
       margin-top: 1rem;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #555;
       text-align: center;
     }
@@ -112,50 +151,53 @@
       color: #336666;
       text-decoration: none;
     }
-
-    @media (max-width: 600px) {
-      .tile {
-        width: 40px;
-        height: 40px;
-        font-size: 1.1rem;
-      }
-    }
   </style>
 </head>
 <body>
-  <h1>FactorFall – Raindrop Mode</h1>
+  <h1>FactorFall</h1>
+  <div id="game-container">
+    <fieldset id="settings">
+      <legend>Game Settings</legend>
 
-  <div id="controls">
-    <label>Divisor:
-      <input type="number" id="divisor" value="3" min="2" max="12" />
-    </label>
+      <div class="control-group">
+        <label for="divisor">Divisor:</label>
+        <input type="number" id="divisor" value="3" min="2" max="12" />
+      </div>
 
-    <label>Background:
-      <input type="range" id="hue" min="0" max="360" value="160" />
-    </label>
+      <div class="control-group">
+        <label for="frequency">Divisibility Frequency: <span class="readonly">(1 = very common, 10 = very rare)</span></label>
+        <input type="range" id="frequency" min="1" max="10" step="1" value="4" />
+      </div>
 
-    <label>Fall Speed:
-      <input type="range" id="speed" min="0.5" max="5" step="0.1" value="1.5" />
-    </label>
+      <div class="control-group">
+        <label for="speed">Fall Speed: <span class="readonly">(Higher = faster)</span></label>
+        <input type="range" id="speed" min="0.5" max="5" step="0.1" value="1.5" />
+      </div>
+    </fieldset>
 
-    <label>Divisibility Frequency:
-      <input type="range" id="frequency" min="1" max="10" step="1" value="4" />
-    </label>
+    <fieldset>
+      <legend>Display</legend>
+      <div class="control-group">
+        <label for="hue">Background color: <span id="hue-value">160</span>°
+          <span id="preview" style="background: hsl(160, 60%, 90%)"></span>
+        </label>
+        <input type="range" id="hue" min="0" max="360" value="160" />
+      </div>
+    </fieldset>
 
-    <button id="start-btn" onclick="startGame()">Start</button>
-    <button onclick="resetGame()">Reset</button>
-  </div>
+    <div id="button-row">
+      <button id="start-btn" onclick="startGame()">Start</button>
+      <button onclick="pauseGame()">Pause</button>
+      <button onclick="stopGame()">Stop</button>
+      <button onclick="resetGame()">Reset</button>
+    </div>
 
-  <div id="hue-label">
-    Background color: <span id="hue-value">160</span>°
-    <div id="preview" style="background: hsl(160, 60%, 90%);"></div>
-  </div>
+    <div id="game-board"></div>
 
-  <div id="game-board"></div>
-
-  <div id="info-bar">
-    <div id="score">Score: 0</div>
-    <div id="timer">Time: 00:00</div>
+    <div id="info-bar">
+      <div id="score">Score: 0</div>
+      <div id="timer">Time: 00:00</div>
+    </div>
   </div>
 
   <footer>
@@ -165,53 +207,78 @@
 
   <script>
     const board = document.getElementById("game-board");
-    const scoreDisplay = document.getElementById("score");
     const hueInput = document.getElementById("hue");
-    const hueValueDisplay = document.getElementById("hue-value");
+    const hueValue = document.getElementById("hue-value");
     const preview = document.getElementById("preview");
-    const timerDisplay = document.getElementById("timer");
+    const settingsFieldset = document.getElementById("settings");
     const startBtn = document.getElementById("start-btn");
+    const scoreDisplay = document.getElementById("score");
+    const timerDisplay = document.getElementById("timer");
     const speedInput = document.getElementById("speed");
     const frequencyInput = document.getElementById("frequency");
 
     let divisor = 3;
     let score = 0;
     let tileId = 0;
-    let gameInterval;
-    let timerInterval;
+    let gameInterval, timerInterval;
     let elapsedSeconds = 0;
     let fallSpeed = 1.5;
     let frequency = 4;
+    let isPaused = false;
 
     function startGame() {
-      resetGame();
+      resetGame(false);
       divisor = parseInt(document.getElementById("divisor").value);
       fallSpeed = parseFloat(speedInput.value);
       frequency = parseInt(frequencyInput.value);
+      settingsFieldset.disabled = true;
       startBtn.disabled = true;
       gameInterval = setInterval(spawnTile, 1000);
       timerInterval = setInterval(updateTimer, 1000);
-      applyHue(); // apply background color
+      applyHue();
     }
 
-    function resetGame() {
+    function resetGame(clearScore = true) {
       clearInterval(gameInterval);
       clearInterval(timerInterval);
       board.innerHTML = "";
-      score = 0;
       tileId = 0;
       elapsedSeconds = 0;
-      timerDisplay.textContent = "Time: 00:00";
-      scoreDisplay.textContent = "Score: 0";
+      if (clearScore) score = 0;
+      updateDisplay();
+      settingsFieldset.disabled = false;
       startBtn.disabled = false;
+      isPaused = false;
+    }
+
+    function pauseGame() {
+      if (!isPaused) {
+        clearInterval(gameInterval);
+        clearInterval(timerInterval);
+        isPaused = true;
+      } else {
+        gameInterval = setInterval(spawnTile, 1000);
+        timerInterval = setInterval(updateTimer, 1000);
+        isPaused = false;
+      }
+    }
+
+    function stopGame() {
+      clearInterval(gameInterval);
+      clearInterval(timerInterval);
+      isPaused = false;
+    }
+
+    function updateDisplay() {
+      timerDisplay.textContent = `Time: ${String(Math.floor(elapsedSeconds / 60)).padStart(2, "0")}:${String(elapsedSeconds % 60).padStart(2, "0")}`;
+      scoreDisplay.textContent = `Score: ${score}`;
     }
 
     function spawnTile() {
       let num;
       const makeDivisible = Math.random() < 1 / frequency;
       if (makeDivisible) {
-        let factor = Math.floor(Math.random() * 10) + 1;
-        num = divisor * factor;
+        num = divisor * (Math.floor(Math.random() * 10) + 1);
       } else {
         do {
           num = Math.floor(Math.random() * 90) + 10;
@@ -223,8 +290,6 @@
       tile.textContent = num;
       tile.style.left = Math.random() * (board.clientWidth - 60) + "px";
       tile.style.top = "0px";
-      tile.dataset.value = num;
-      tile.dataset.id = tileId++;
       board.appendChild(tile);
 
       const fall = setInterval(() => {
@@ -238,15 +303,15 @@
       }, 10);
 
       tile.onclick = () => {
-        const val = parseInt(tile.dataset.value);
+        const val = parseInt(tile.textContent);
         if (val % divisor === 0) {
           score += 1;
-          tile.style.background = "#5cb85c"; // green
+          tile.style.background = "#5cb85c";
         } else {
           score -= 1;
-          tile.style.background = "#d9534f"; // red
+          tile.style.background = "#d9534f";
         }
-        scoreDisplay.textContent = "Score: " + score;
+        updateDisplay();
         setTimeout(() => {
           clearInterval(fall);
           tile.remove();
@@ -256,9 +321,7 @@
 
     function updateTimer() {
       elapsedSeconds++;
-      const mins = String(Math.floor(elapsedSeconds / 60)).padStart(2, "0");
-      const secs = String(elapsedSeconds % 60).padStart(2, "0");
-      timerDisplay.textContent = `Time: ${mins}:${secs}`;
+      updateDisplay();
     }
 
     function applyHue() {
@@ -266,7 +329,7 @@
       const bgColor = `hsl(${hue}, 60%, 90%)`;
       preview.style.background = bgColor;
       board.style.background = bgColor;
-      hueValueDisplay.textContent = hue;
+      hueValue.textContent = hue;
     }
 
     hueInput.addEventListener("input", applyHue);
