@@ -57,9 +57,10 @@
       max-width: 400px;
       height: 500px;
       border: 3px solid #ccc;
-      background: #ffffff;
+      background: hsl(160, 60%, 90%);
       border-radius: 12px;
       overflow: hidden;
+      transition: background 0.3s ease;
     }
 
     .tile {
@@ -107,15 +108,15 @@
   <div id="controls">
     Divisor:
     <input type="number" id="divisor" value="3" min="2" max="12" />
-    Hue:
+    Background:
     <input type="range" id="hue" min="0" max="360" value="160" />
     <button id="start-btn" onclick="startGame()">Start</button>
     <button onclick="resetGame()">Reset</button>
   </div>
 
   <div id="hue-label">
-    Tile hue: <span id="hue-value">160</span>°
-    <div id="preview" style="background: hsl(160, 60%, 55%);"></div>
+    Background color: <span id="hue-value">160</span>°
+    <div id="preview" style="background: hsl(160, 60%, 90%);"></div>
   </div>
 
   <div id="game-board"></div>
@@ -147,6 +148,7 @@
       startBtn.disabled = true;
       gameInterval = setInterval(spawnTile, 1000);
       timerInterval = setInterval(updateTimer, 1000);
+      applyHue(); // Set initial background from slider
     }
 
     function resetGame() {
@@ -161,47 +163,43 @@
       startBtn.disabled = false;
     }
 
-function spawnTile() {
-  const num = Math.floor(Math.random() * 90) + 10;
-  const hue = parseInt(hueInput.value); // 👈 capture hue when tile is created
-  const tile = document.createElement("div");
-  tile.className = "tile";
-  tile.textContent = num;
-  tile.style.left = Math.random() * (board.clientWidth - 60) + "px";
-  tile.style.top = "0px";
-  tile.dataset.value = num;
-  tile.dataset.hue = hue; // 👈 store the hue in the tile’s data
-  tile.dataset.id = tileId++;
-  tile.style.background = `hsl(${hue}, 60%, 55%)`; // 👈 apply hue when tile spawns
-  board.appendChild(tile);
+    function spawnTile() {
+      const num = Math.floor(Math.random() * 90) + 10;
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      tile.textContent = num;
+      tile.style.left = Math.random() * (board.clientWidth - 60) + "px";
+      tile.style.top = "0px";
+      tile.dataset.value = num;
+      tile.dataset.id = tileId++;
+      board.appendChild(tile);
 
-  const fall = setInterval(() => {
-    let top = parseFloat(tile.style.top);
-    if (top > board.clientHeight) {
-      clearInterval(fall);
-      tile.remove();
-    } else {
-      tile.style.top = top + 1.5 + "px";
-    }
-  }, 10);
+      const fall = setInterval(() => {
+        let top = parseFloat(tile.style.top);
+        if (top > board.clientHeight) {
+          clearInterval(fall);
+          tile.remove();
+        } else {
+          tile.style.top = top + 1.5 + "px";
+        }
+      }, 10);
 
-  tile.onclick = () => {
-    const val = parseInt(tile.dataset.value);
-    const tileHue = tile.dataset.hue; // 👈 use stored hue
-    if (val % divisor === 0) {
-      score += 1;
-      tile.style.background = `hsl(${tileHue}, 60%, 55%)`;
-    } else {
-      score -= 1;
-      tile.style.background = "#d9534f";
+      tile.onclick = () => {
+        const val = parseInt(tile.dataset.value);
+        if (val % divisor === 0) {
+          score += 1;
+          tile.style.background = "#5cb85c"; // green
+        } else {
+          score -= 1;
+          tile.style.background = "#d9534f"; // red
+        }
+        scoreDisplay.textContent = "Score: " + score;
+        setTimeout(() => {
+          clearInterval(fall);
+          tile.remove();
+        }, 200);
+      };
     }
-    scoreDisplay.textContent = "Score: " + score;
-    setTimeout(() => {
-      clearInterval(fall);
-      tile.remove();
-    }, 200);
-  };
-}
 
     function updateTimer() {
       elapsedSeconds++;
@@ -210,11 +208,15 @@ function spawnTile() {
       timerDisplay.textContent = `Time: ${mins}:${secs}`;
     }
 
-    hueInput.addEventListener("input", () => {
+    function applyHue() {
       const hue = hueInput.value;
+      const bgColor = `hsl(${hue}, 60%, 90%)`;
+      preview.style.background = bgColor;
+      board.style.background = bgColor;
       hueValueDisplay.textContent = hue;
-      preview.style.background = `hsl(${hue}, 60%, 55%)`;
-    });
+    }
+
+    hueInput.addEventListener("input", applyHue);
   </script>
 </body>
 </html>
